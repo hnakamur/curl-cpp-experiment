@@ -22,31 +22,30 @@ Factorial(int n)
 int
 main()
 {
-  // Let's declare a stream
-  std::ostringstream stream;
+  std::ostringstream header_stream;
+  std::ostringstream body_stream;
 
-  // We are going to put the request's output in the previously declared stream
-  curl::curl_ios<std::ostringstream> ios(stream);
+  curl::curl_ios<std::ostringstream> header_ios(header_stream);
+  curl::curl_ios<std::ostringstream> body_ios(body_stream);
 
-  // Declaration of an easy object
-  curl::curl_easy easy(ios);
+  curl::curl_easy easy;
 
-  // Add some options.
+  easy.add<CURLOPT_WRITEFUNCTION>(header_ios.get_function());
+  easy.add<CURLOPT_HEADERDATA>(header_ios.get_stream());
+
+  easy.add<CURLOPT_WRITEDATA>(body_ios.get_stream());
+
   easy.add<CURLOPT_URL>("http://localhost");
   easy.add<CURLOPT_FOLLOWLOCATION>(1L);
 
   try {
     easy.perform();
 
-    // Retrieve information about curl current session.
     auto x = easy.get_info<CURLINFO_CONTENT_TYPE>();
+    std::cout << "just content-type: " << x.get() << std::endl;
 
-    /**
-     * get_info returns a curl_easy_info object. With the get method we retrieve
-     * the std::pair object associated with it: the first item is the return code of the
-     * request. The second is the element requested by the specified libcurl macro.
-     */
-    std::cout << x.get() << std::endl;
+    std::cout << "--- header ---\n" << header_stream.str() << std::endl;
+    std::cout << "--- body ---\n" << body_stream.str() << std::endl;
   } catch (curl::curl_easy_exception &error) {
     // If you want to print the last error.
     std::cerr << error.what() << std::endl;
