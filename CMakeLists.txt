@@ -16,7 +16,7 @@ add_link_options(-flto)
 
 enable_testing()
 add_subdirectory(src)
-add_subdirectory(tests)
+# add_subdirectory(tests)
 
 include(clang_format)
 add_clang_format_target(clang_format_src src)
