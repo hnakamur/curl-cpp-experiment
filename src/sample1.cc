@@ -1,9 +1,7 @@
 
 #include "curlcpp/curl_easy.h"
-
-using curl::curl_easy;
-using curl::curl_easy_exception;
-using curl::curlcpp_traceback;
+#include "curlcpp/curl_ios.h"
+#include "curlcpp/curl_exception.h"
 
 #include "sample1.h"
 
@@ -24,8 +22,14 @@ Factorial(int n)
 int
 main()
 {
-  // Easy object to handle the connection.
-  curl_easy easy;
+  // Let's declare a stream
+  std::ostringstream stream;
+
+  // We are going to put the request's output in the previously declared stream
+  curl::curl_ios<std::ostringstream> ios(stream);
+
+  // Declaration of an easy object
+  curl::curl_easy easy(ios);
 
   // Add some options.
   easy.add<CURLOPT_URL>("http://localhost");
@@ -33,9 +37,22 @@ main()
 
   try {
     easy.perform();
-  } catch (curl_easy_exception &error) {
+
+    // Retrieve information about curl current session.
+    auto x = easy.get_info<CURLINFO_CONTENT_TYPE>();
+
+    /**
+     * get_info returns a curl_easy_info object. With the get method we retrieve
+     * the std::pair object associated with it: the first item is the return code of the
+     * request. The second is the element requested by the specified libcurl macro.
+     */
+    std::cout << x.get() << std::endl;
+  } catch (curl::curl_easy_exception &error) {
     // If you want to print the last error.
     std::cerr << error.what() << std::endl;
+
+    // If you want to print the entire error stack you can do
+    error.print_traceback();
   }
   return 0;
 }
