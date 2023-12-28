@@ -1,9 +1,10 @@
 #include <iostream>
 #include <ostream>
 
-#include "curlcpp/curl_easy.h"
-#include "curlcpp/curl_multi.h"
-#include "curlcpp/curl_ios.h"
+#include <argparse/argparse.hpp>
+#include <curlcpp/curl_easy.h>
+#include <curlcpp/curl_multi.h>
+#include <curlcpp/curl_ios.h>
 
 using curl::curl_easy;
 using curl::curl_multi;
@@ -16,8 +17,17 @@ using curl::curlcpp_traceback;
  * using curl_multi interface.
  */
 int
-main()
+main(int argc, char *argv[])
 {
+  argparse::ArgumentParser program("multi1");
+  try {
+    program.parse_args(argc, argv);
+  } catch (const std::exception &err) {
+    std::cerr << err.what() << std::endl;
+    std::cerr << program;
+    return 2;
+  }
+
   std::vector<std::string> urls;
   urls.emplace_back("http://localhost?a=1");
   urls.emplace_back("http://localhost?a=2");
