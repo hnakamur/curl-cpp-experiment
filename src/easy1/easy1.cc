@@ -3,8 +3,6 @@
 #include "curlcpp/curl_ios.h"
 #include "curlcpp/curl_exception.h"
 
-#include "sample1.h"
-
 int
 Factorial(int n)
 {
