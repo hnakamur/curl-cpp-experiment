@@ -20,6 +20,9 @@ int
 main(int argc, char *argv[])
 {
   argparse::ArgumentParser program("multi1");
+  program.add_argument("-u", "--url").required().help("target URL");
+  program.add_argument("-c", "--concurrency").required().help("concurrent client count").scan<'i', int>();
+  ;
   try {
     program.parse_args(argc, argv);
   } catch (const std::exception &err) {
@@ -27,11 +30,9 @@ main(int argc, char *argv[])
     std::cerr << program;
     return 2;
   }
-
-  std::vector<std::string> urls;
-  urls.emplace_back("http://localhost?a=1");
-  urls.emplace_back("http://localhost?a=2");
-  urls.emplace_back("http://localhost?a=3");
+  std::string url = program.get<std::string>("--url");
+  int concurrency = program.get<int>("--concurrency");
+  std::cout << "URL: " << url << ", CONCURRENCY: " << concurrency << std::endl;
 
   // Create a vector of curl easy handlers.
   std::vector<curl_easy> handlers;
@@ -40,7 +41,7 @@ main(int argc, char *argv[])
   std::vector<curl_ios<std::ostringstream>> streams;
 
   // Create the curl easy handler and associated the streams with it.
-  for (const auto &url : urls) {
+  for (int i = 0; i < concurrency; ++i) {
     auto *output_stream = new std::ostringstream;
     curl_ios<std::ostringstream> curl_stream(*output_stream);
 
