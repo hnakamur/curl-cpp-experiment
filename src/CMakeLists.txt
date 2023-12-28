@@ -9,3 +9,4 @@ function(add_example target src_filenames)
 endfunction()
 
 add_example(easy1 easy1.cc)
+add_example(multi1 multi1.cc)
